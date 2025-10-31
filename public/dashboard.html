@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard - DroneFood</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .navbar-brand {
+      font-weight: bold;
+    }
+    .tab-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 🧭 Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">🚁 DroneFood Admin</a>
+      <div class="d-flex">
+        <a href="index.html" class="btn btn-outline-light">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 🧮 Tabs -->
+  <div class="container mt-4">
+    <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">📦 Orders</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="drones-tab" data-bs-toggle="tab" data-bs-target="#drones" type="button" role="tab">🚁 Drones</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="deliveries-tab" data-bs-toggle="tab" data-bs-target="#deliveries" type="button" role="tab">🚚 Deliveries</button>
+      </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="dashboardContent">
+      <!-- Orders Tab -->
+      <div class="tab-pane fade show active" id="orders" role="tabpanel">
+        <h4>📦 All Orders</h4>
+        <table class="table table-striped">
+          <thead class="table-dark">
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Restaurant</th>
+              <th>Status</th>
+              <th>Total Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Drones Tab -->
+      <div class="tab-pane fade" id="drones" role="tabpanel">
+        <h4>🚁 Drone Fleet</h4>
+        <table class="table table-striped">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Model</th>
+              <th>Capacity (kg)</th>
+              <th>Max Range (km)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="dronesTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Deliveries Tab -->
+      <div class="tab-pane fade" id="deliveries" role="tabpanel">
+        <h4>🚚 Active Deliveries</h4>
+        <table class="table table-striped">
+          <thead class="table-dark">
+            <tr>
+              <th>Delivery ID</th>
+              <th>Order ID</th>
+              <th>Drone ID</th>
+              <th>Status</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="deliveriesTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    async function loadOrders() {
+      const res = await fetch('/orders');
+      const data = await res.json();
+      const tbody = document.getElementById('ordersTable');
+      tbody.innerHTML = data.map(o => `
+        <tr>
+          <td>${o.OrderID}</td>
+          <td>${o.Customer}</td>
+          <td>${o.Restaurant}</td>
+          <td>${o.Status}</td>
+          <td>₹${o.TotalAmount || 0}</td>
+          <td>
+            <button class="btn btn-success btn-sm" onclick="assignDrone(${o.OrderID})">Assign Drone</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadDrones() {
+      const res = await fetch('/drones');
+      const data = await res.json();
+      const tbody = document.getElementById('dronesTable');
+      tbody.innerHTML = data.map(d => `
+        <tr>
+          <td>${d.DroneID}</td>
+          <td>${d.Model}</td>
+          <td>${d.Capacity}</td>
+          <td>${d.MaxRange}</td>
+          <td>${d.Status}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadDeliveries() {
+      const res = await fetch('/deliveries');
+      const data = await res.json();
+      const tbody = document.getElementById('deliveriesTable');
+      tbody.innerHTML = data.map(d => `
+        <tr>
+          <td>${d.DeliveryID}</td>
+          <td>${d.OrderID}</td>
+          <td>${d.DroneID}</td>
+          <td>${d.Status}</td>
+          <td>${d.StartTime || '-'}</td>
+          <td>${d.EndTime || '-'}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="completeDelivery(${d.DeliveryID})">Mark Complete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function assignDrone(orderID) {
+      const res = await fetch('/assignDrone', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ orderID })
+      });
+      const result = await res.json();
+      alert(result.message);
+      loadOrders();
+      loadDrones();
+      loadDeliveries();
+    }
+
+    async function completeDelivery(deliveryID) {
+      const res = await fetch('/completeDelivery', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ deliveryID })
+      });
+      const result = await res.json();
+      alert(result.message);
+      loadDrones();
+      loadDeliveries();
+    }
+
+    loadOrders();
+    loadDrones();
+    loadDeliveries();
+  </script>
+</body>
+</html>
