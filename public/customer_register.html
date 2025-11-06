@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register as Customer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Customer Registration</h2>
+    <form id="registerForm">
+      <input id="name" placeholder="Full Name" required>
+      <input id="phone" placeholder="Phone" required>
+      <input id="email" placeholder="Email" required>
+      <input id="address" placeholder="Address" required>
+      <input id="username" placeholder="Username" required>
+      <input id="password" placeholder="Password" type="password" required>
+      <button type="submit">Register</button>
+    </form>
+    <p><a href="index.html">Back to Login</a></p>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = {
+        Name: name.value,
+        Phone: phone.value,
+        Email: email.value,
+        Address: address.value,
+        Username: username.value,
+        Password: password.value
+      };
+      const res = await fetch('/customer/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      });
+      const data = await res.json();
+      alert(data.message || data.error);
+      if (res.ok) window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
