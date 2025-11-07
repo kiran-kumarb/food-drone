@@ -4,25 +4,41 @@
   <meta charset="UTF-8">
   <title>Drone Food Delivery - Login</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
   <div class="container">
-    <h2>🚀 Drone Food Delivery</h2>
+    <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="Drone Logo" width="70" style="margin-bottom: 15px;">
+
+    <h2 style="margin-bottom: 10px; color: #007bff;">🚀 Drone Food Delivery</h2>
+    <p style="color:#555; font-size: 14px; margin-bottom: 25px;">
+      Delivering your favorite meals faster than ever with our smart drone system.
+    </p>
+
     <div class="tabs">
-      <button id="customerTab" class="active">Customer</button>
-      <button id="restaurantTab">Restaurant</button>
+      <button id="customerTab" class="active">Customer Login</button>
+      <button id="restaurantTab">Restaurant Login</button>
     </div>
 
     <form id="loginForm">
-      <input type="text" id="username" placeholder="Username" required />
-      <input type="password" id="password" placeholder="Password" required />
+      <input type="text" id="username" placeholder="👤 Username" required />
+      <input type="password" id="password" placeholder="🔒 Password" required />
       <button type="submit">Login</button>
     </form>
 
-    <p id="registerLink">
-      New user? <a href="customer_register.html">Register as Customer</a>
+    <p id="registerLink" style="margin-top: 15px; font-size: 14px;">
+      New user? <a href="customer_register.html" style="color:#007bff; text-decoration:none;">Register as Customer</a>
     </p>
-    <p id="error"></p>
+
+    <p id="error" style="color:red; font-weight:500;"></p>
+
+    <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
+
+    <footer style="font-size: 13px; color:#777;">
+      <p>© 2025 DroneFood Technologies</p>
+      <p>Made with ❤️ by JEEVAN and KiRAN</p>
+    </footer>
   </div>
 
   <script src="login.js"></script>

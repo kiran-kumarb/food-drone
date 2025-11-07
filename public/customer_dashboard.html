@@ -4,18 +4,34 @@
   <meta charset="UTF-8">
   <title>Customer Dashboard - Drone Food</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h2>Welcome, <span id="custName"></span></h2>
-    <h3>Available Restaurants</h3>
-    <select id="restaurantSelect"></select>
-    <div id="menuContainer"></div>
 
-    <button id="placeOrderBtn">Place Order</button>
-    <p id="status"></p>
+  <div class="container" style="width: 420px; text-align: left;">
 
-    <p><a href="index.html">Logout</a></p>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px;">
+      <h2 style="color:#007bff;">👋 Welcome, <span id="custName" style="color:#333;"></span></h2>
+      <a href="index.html" style="font-size:14px; text-decoration:none; color:#007bff; font-weight:500;">Logout</a>
+    </div>
+
+    <div style="background:#f9fbff; border-radius:10px; padding:15px; margin-bottom:20px;">
+      <h3 style="margin-bottom:10px;">🍴 Choose a Restaurant</h3>
+      <select id="restaurantSelect" style="margin-bottom:10px;"></select>
+    </div>
+
+    <div id="menuContainer" style="background:#fafafa; border-radius:10px; padding:15px; min-height:100px;">
+      <h4 style="color:#555; margin-bottom:10px;">📋 Menu Items</h4>
+      <p style="font-size:14px; color:#777;">Select a restaurant to view available dishes.</p>
+    </div>
+
+    <button id="placeOrderBtn" style="margin-top:20px;">Place Order</button>
+
+    <p id="status" style="margin-top:15px; background:#f1f5ff; border-radius:10px; padding:10px; font-size:14px; color:#333;">Waiting for your order...</p>
+
+    <footer style="text-align:center; margin-top:20px; font-size:13px; color:#888;">
+      <p>🚁 Powered by DroneFood | Fast • Safe • Smart</p>
+    </footer>
   </div>
 
   <script src="customer_dashboard.js"></script>

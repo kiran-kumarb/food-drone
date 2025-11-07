@@ -94,6 +94,7 @@ async function handlePayment() {
   });
 
   statusBox.textContent = '🚁 Drone assigned! Your food is on the way.';
+
 }
 
 loadRestaurants();
