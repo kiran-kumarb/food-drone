@@ -26,8 +26,10 @@ module.exports = (db) => {
 
   // List all restaurants
   router.get('/list', (req, res) => {
+
     db.query('SELECT * FROM Restaurant', (err, result) => {
       if (err) return res.status(500).json({ error: err.sqlMessage });
+      // console.log("Fetched restaurants:", data);
       res.json(result);
     });
   });
@@ -43,3 +45,4 @@ module.exports = (db) => {
 
   return router;
 };
+

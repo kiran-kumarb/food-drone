@@ -1,44 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Register as Customer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register as Customer - DroneFood</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h2>Customer Registration</h2>
-    <form id="registerForm">
-      <input id="name" placeholder="Full Name" required>
-      <input id="phone" placeholder="Phone" required>
-      <input id="email" placeholder="Email" required>
-      <input id="address" placeholder="Address" required>
-      <input id="username" placeholder="Username" required>
-      <input id="password" placeholder="Password" type="password" required>
-      <button type="submit">Register</button>
-    </form>
-    <p><a href="index.html">Back to Login</a></p>
-  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="Drone Logo">
+      <h1>DroneFood</h1>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Login</a>
+      <a href="#">About</a>
+      <a href="#">Support</a>
+    </div>
+  </nav>
+
+  <!-- Registration Section -->
+  <section class="hero register-hero">
+    <div class="hero-left">
+      <h2>🍔 Join DroneFood Today!</h2>
+      <p>Experience the next generation of food delivery with drones bringing your favorite meals right to your doorstep.</p>
+      <img src="https://cdn.dribbble.com/users/875/screenshots/10667887/media/8c3b69a1c9b622ecb6c7ec27d5d8b2c7.png" 
+           alt="Drone Illustration" class="illustration">
+    </div>
+
+    <div class="hero-right">
+      <h3 class="form-title">Customer Registration</h3>
+
+      <form id="registerForm">
+        <div class="form-grid">
+          <input id="name" placeholder="Full Name" required>
+          <input id="phone" placeholder="Phone" required>
+          <input id="email" placeholder="Email" type="email" required>
+          <input id="address" placeholder="Address" required>
+          <input id="username" placeholder="Username" required>
+          <input id="password" placeholder="Password" type="password" required>
+        </div>
+        <button type="submit" class="btn-register">Register</button>
+      </form>
+
+      <p class="redirect-text">
+        Already have an account? <a href="index.html">Back to Login</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 DroneFood Technologies</p>
+    <p>Made with ❤ by Jeevan and Kiran</p>
+  </footer>
 
   <script>
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const user = {
-        Name: name.value,
-        Phone: phone.value,
-        Email: email.value,
-        Address: address.value,
-        Username: username.value,
-        Password: password.value
-      };
+
+      const Name = document.getElementById('name').value.trim();
+      const Phone = document.getElementById('phone').value.trim();
+      const Email = document.getElementById('email').value.trim();
+      const Address = document.getElementById('address').value.trim();
+      const Username = document.getElementById('username').value.trim();
+      const Password = document.getElementById('password').value.trim();
+
+      const user = { Name, Phone, Email, Address, Username, Password };
+
       const res = await fetch('/customer/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user)
       });
+
       const data = await res.json();
       alert(data.message || data.error);
+
       if (res.ok) window.location.href = 'index.html';
     });
   </script>
+
 </body>
 </html>

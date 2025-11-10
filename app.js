@@ -33,12 +33,15 @@ const customerRoutes = require('./routes/customer');
 const restaurantRoutes = require('./routes/restaurant');
 const orderRoutes = require('./routes/order');
 const deliveryRoutes = require('./routes/delivery');
+const notificationRoutes = require('./routes/notification');
+// const orderRoutes = require("./routes/order")(db);
 
 // Use routes
 app.use('/customer', customerRoutes(db));
 app.use('/restaurant', restaurantRoutes(db));
 app.use('/order', orderRoutes(db));
 app.use('/delivery', deliveryRoutes(db));
+app.use('/notification', notificationRoutes(db));
 
 // Start server
 const PORT = process.env.PORT || 5000;

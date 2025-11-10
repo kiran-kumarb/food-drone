@@ -53,7 +53,7 @@ BEGIN
     WHERE OrderID = p_OrderID;
 
     -- Optional: assign drone automatically
-    CALL AssignDrone(p_OrderID);
+    -- CALL AssignDrone(p_OrderID);
 END $$
 
 DELIMITER ;

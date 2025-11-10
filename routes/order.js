@@ -45,6 +45,43 @@ router.get('/latest/:customerID', (req, res) => {
     }
   );
 });
+router.get('/status/:id', (req, res) => {
+  const orderId = req.params.id;
+  db.query('SELECT Status FROM OrderTable WHERE OrderID = ?', [orderId], (err, result) => {
+    if (err) return res.status(500).json({ error: err.sqlMessage });
+    res.json(result[0]);
+  });
+});
+
+// ===========================
+// 🕒 ORDER HISTORY ENDPOINT
+// ===========================
+router.get('/history/:CustomerID', (req, res) => {
+  const customerId = req.params.CustomerID;
+
+  const query = `
+    SELECT 
+      o.OrderID,
+      o.OrderDate,
+      o.TotalAmount,
+      o.Status,
+      r.Name AS RestaurantName,
+      r.Location AS RestaurantLocation
+    FROM OrderTable o
+    JOIN Restaurant r ON o.RestaurantID = r.RestaurantID
+    WHERE o.CustomerID = ?
+    ORDER BY o.OrderDate DESC;
+  `;
+
+  db.query(query, [customerId], (err, results) => {
+    if (err) {
+      console.error('❌ Error fetching order history:', err);
+      return res.status(500).json({ error: 'Failed to load order history' });
+    }
+
+    res.json(results);
+  });
+});
 
   return router;
 };
