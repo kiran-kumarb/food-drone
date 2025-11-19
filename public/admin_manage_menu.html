@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="admin.css">
+  <meta charset="utf-8"/>
+  <title>Manage Menu</title>
+  <style>
+    body { font-family: Arial; padding: 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    td, th { padding: .5rem; border: 1px solid #ddd; }
+    form input, form select { margin-right: .5rem; padding: .3rem; }
+  </style>
+</head>
+<body>
+
+  <h2>Manage Menu</h2>
+  <p><a href="admin_dashboard.html">← Back</a></p>
+
+  <form id="addItem">
+    <select id="restaurantSelect" required></select>
+    <input name="name" placeholder="Item name" required />
+    <input name="description" placeholder="Description" />
+    <input name="price" placeholder="Price" type="number" step="0.01" required />
+    <input name="weightKg" placeholder="Weight (kg)" type="number" step="0.001" required value="0.250" />
+    <button type="submit">Add Menu Item</button>
+  </form>
+
+  <h3>Menu Items</h3>
+
+  <table id="menuTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Item</th>
+        <th>Restaurant</th>
+        <th>Price</th>
+        <th>Weight</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script type="module">
+
+const API_BASE = "http://localhost:5000";
+
+if (!localStorage.getItem("admin"))
+  location.href = "admin_login.html";
+
+// -----------------------------
+// Load restaurants into dropdown
+// -----------------------------
+async function loadRestaurants() {
+  const res = await fetch(API_BASE + "/api/admin/restaurants");
+  const data = await res.json();
+
+  document.getElementById("restaurantSelect").innerHTML =
+    data.map(
+      r => `<option value="${r.RestaurantID}">${r.Name} — (${r.Location})</option>`
+    ).join("");
+}
+
+// -----------------------------
+// Load menu table
+// -----------------------------
+async function loadMenu() {
+  const res = await fetch(API_BASE + "/api/admin/menu");
+  const data = await res.json();
+
+  const tbody = document.querySelector("#menuTable tbody");
+  tbody.innerHTML = "";
+
+  // Only show Active menu items
+  const activeItems = data.filter(item => item.Status !== "Removed");
+
+  activeItems.forEach(item => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${item.ItemID}</td>
+      <td>${item.ItemName}</td>
+      <td>${item.RestaurantName || ""}</td>
+      <td>${item.Price}</td>
+      <td>${item.WeightKg}</td>
+      <td>
+        <button class="delete" data-id="${item.ItemID}">
+          Remove
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  // Delete button → Soft Delete
+  document.querySelectorAll(".delete").forEach(btn =>
+    btn.addEventListener("click", async e => {
+      const id = e.target.dataset.id;
+
+      if (!confirm("Mark this item as removed?")) return;
+
+      await fetch(API_BASE + "/api/admin/menu/" + id, {
+        method: "DELETE"
+      });
+
+      loadMenu();
+    })
+  );
+}
+
+// -----------------------------
+// Add item form handler
+// -----------------------------
+document.getElementById("addItem").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.target;
+
+  const body = {
+    restaurantID: document.getElementById("restaurantSelect").value,
+    name: f.name.value,
+    description: f.description.value,
+    price: parseFloat(f.price.value),
+    weightKg: parseFloat(f.weightKg.value),
+  };
+
+  await fetch(API_BASE + "/api/admin/menu/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  f.reset();
+  loadMenu();
+});
+
+// -----------------------------
+// LOAD EVERYTHING
+// -----------------------------
+await loadRestaurants();
+await loadMenu();
+
+</script>
+</body>
+</html>

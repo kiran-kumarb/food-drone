@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="admin.css">
+  <meta charset="utf-8"/>
+  <title>Manage Restaurants</title>
+  <style>body{font-family:Arial;margin:0;padding:1rem}table{width:100%;border-collapse:collapse}td,th{padding:.5rem;border:1px solid #ddd}</style>
+</head>
+<body>
+  <h2>Manage Restaurants</h2>
+  <p><a href="admin_dashboard.html">← back</a></p>
+
+  <form id="addForm">
+    <input name="name" placeholder="Name" required />
+    <input name="location" placeholder="Location" required />
+    <input name="contact" placeholder="Contact" required />
+    <button type="submit">Add Restaurant</button>
+  </form>
+
+  <h3>Existing Restaurants</h3>
+  <table id="rests">
+    <thead><tr><th>ID</th><th>Name</th><th>Location</th><th>Contact</th><th>Actions</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+const API_BASE = "http://localhost:5000";
+if(!localStorage.getItem('admin')) location.href='admin_login.html';
+
+async function loadRestaurants(){
+  const res = await fetch(API_BASE + '/api/admin/restaurants');
+  const data = await res.json();
+  const tbody = document.querySelector('#rests tbody');
+  tbody.innerHTML = '';
+  data.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.RestaurantID}</td><td>${r.Name}</td><td>${r.Location}</td><td>${r.Contact}</td>
+      <td><button data-id="${r.RestaurantID}" class="del">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('.del').forEach(b=>b.onclick = async e=>{
+    if(!confirm('Delete?')) return;
+    const id = e.target.dataset.id;
+    await fetch(API_BASE + '/api/admin/restaurants/' + id, { method: 'DELETE' });
+    loadRestaurants();
+  });
+}
+loadRestaurants();
+
+document.getElementById('addForm').onsubmit = async (ev)=>{
+  ev.preventDefault();
+  const f = ev.target;
+  const body = { name: f.name.value, location: f.location.value, contact: f.contact.value };
+  await fetch(API_BASE + '/api/admin/restaurants/add', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body) });
+  f.reset(); loadRestaurants();
+};
+</script>
+</body>
+</html>

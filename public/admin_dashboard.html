@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="admin.css">
+  <meta charset="utf-8"/>
+  <title>Admin Dashboard - DroneFood</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0}
+    header{background:#0b75bd;color:white;padding:1rem 1.5rem}
+    .wrap{padding:1.5rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+    .card{background:#fff;border:1px solid #eee;padding:1rem;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+    a.btn{display:inline-block;padding:.5rem .8rem;background:#0b75bd;color:#fff;border-radius:6px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <header><h1>Admin Dashboard</h1></header>
+  <div class="wrap">
+    <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem">
+      <a class="btn" href="admin_manage_restaurants.html">Manage Restaurants</a>
+      <a class="btn" href="admin_manage_menu.html">Manage Menu</a>
+      <a class="btn" href="admin_manage_drones.html">Manage Drones</a>
+      <a class="btn" href="admin_view_orders.html">View Orders</a>
+      <button onclick="logout()" style="margin-left:auto">Logout</button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Restaurants</h3>
+        <p id="restCount">Loading...</p>
+      </div>
+      <div class="card">
+        <h3>Menu Items</h3>
+        <p id="menuCount">Loading...</p>
+      </div>
+      <div class="card">
+        <h3>Drones</h3>
+        <p id="droneCount">Loading...</p>
+      </div>
+      <div class="card">
+        <h3>Orders</h3>
+        <p id="orderCount">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+const API_BASE = "http://localhost:5000";
+function checkAuth(){ if(!localStorage.getItem('admin')) location.href='admin_login.html'; }
+checkAuth();
+
+async function fetchCounts(){
+  try{
+    const [rRes, mRes, dRes, oRes] = await Promise.all([
+      fetch(API_BASE + "/api/admin/restaurants").then(r=>r.json()),
+      fetch(API_BASE + "/api/admin/menu").then(r=>r.json()),
+      fetch(API_BASE + "/api/admin/drones").then(r=>r.json()),
+      fetch(API_BASE + "/api/admin/orders").then(r=>r.json())
+    ]);
+    document.getElementById('restCount').textContent = rRes.length + " restaurants";
+    document.getElementById('menuCount').textContent = mRes.length + " menu items";
+    document.getElementById('droneCount').textContent = dRes.length + " drones";
+    document.getElementById('orderCount').textContent = oRes.length + " orders";
+  }catch(e){
+    console.error(e);
+  }
+}
+fetchCounts();
+
+function logout(){ localStorage.removeItem('admin'); location.href='index.html'; }
+</script>
+</body>
+</html>

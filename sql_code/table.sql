@@ -114,3 +114,12 @@ CREATE TABLE Notification (
     CreatedAt DATETIME DEFAULT NOW(),
     IsRead TINYINT DEFAULT 0
 );
+
+
+-- admin
+CREATE TABLE Admin (
+    AdminID INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Name VARCHAR(100)
+);

@@ -28,21 +28,24 @@ db.getConnection((err, connection) => {
   }
 });
 
-// Import routes
+// Import routes (NO DUPLICATES)
 const customerRoutes = require('./routes/customer');
 const restaurantRoutes = require('./routes/restaurant');
 const orderRoutes = require('./routes/order');
 const deliveryRoutes = require('./routes/delivery');
 const notificationRoutes = require('./routes/notification');
-// const orderRoutes = require("./routes/order")(db);
+const adminRoutes = require("./routes/admin");
 
-// Use routes
+// Mount routes
 app.use('/customer', customerRoutes(db));
 app.use('/restaurant', restaurantRoutes(db));
 app.use('/order', orderRoutes(db));
 app.use('/delivery', deliveryRoutes(db));
 app.use('/notification', notificationRoutes(db));
+app.use("/api/admin", adminRoutes(db));
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT} : http://localhost:${PORT}/index.html`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT} : http://localhost:${PORT}/index.html`)
+);

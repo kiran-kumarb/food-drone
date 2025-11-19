@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="admin.css">
+  <meta charset="utf-8"/>
+  <title>View Orders</title>
+  <style>body{font-family:Arial;padding:1rem}table{width:100%;border-collapse:collapse}td,th{padding:.5rem;border:1px solid #ddd}</style>
+</head>
+<body>
+  <h2>All Orders</h2>
+  <p><a href="admin_dashboard.html">← back</a></p>
+
+  <table id="orders">
+    <thead><tr><th>OrderID</th><th>Customer</th><th>Restaurant</th><th>Total</th><th>Weight</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+const API_BASE = "http://localhost:5000";
+if(!localStorage.getItem('admin')) location.href='admin_login.html';
+
+async function loadOrders(){
+  const res = await fetch(API_BASE + '/api/admin/orders');
+  const data = await res.json();
+  const tbody = document.querySelector('#orders tbody'); tbody.innerHTML='';
+  data.forEach(o=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${o.OrderID}</td><td>${o.CustomerName||''}</td><td>${o.RestaurantName||''}</td><td>${o.TotalAmount}</td><td>${o.TotalWeightKg}</td><td>${o.Status}</td>
+      <td>
+        <button class="complete" data-id="${o.OrderID}">Mark Delivered</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('.complete').forEach(b=>b.onclick=async e=>{
+    if(!confirm('Mark delivered?')) return;
+    const id=e.target.dataset.id;
+    await fetch(API_BASE + '/api/admin/orders/complete/' + id, { method:'PUT' });
+    loadOrders();
+  });
+}
+loadOrders();
+</script>
+</body>
+</html>

@@ -1,48 +1,67 @@
-const express = require('express');
-const router = express.Router();
+// routes/restaurant.js
+const express = require("express");
 
 module.exports = (db) => {
-  // Register new restaurant
-  router.post('/register', (req, res) => {
-    const { Name, Location, Contact, Username, Password } = req.body;
-    db.query(
-      'CALL RegisterRestaurant(?, ?, ?, ?, ?)',
-      [Name, Location, Contact, Username, Password],
-      (err, result) => {
-        if (err) return res.status(400).json({ error: err.sqlMessage });
-        res.json({ message: 'Restaurant registered successfully' });
-      }
-    );
+  const router = express.Router();
+  const q = (...args) => db.promise().query(...args);
+
+  /* ============================================================
+     1. GET ALL RESTAURANTS
+     ============================================================ */
+  router.get("/list", async (req, res) => {
+    try {
+      const [rows] = await q("SELECT * FROM Restaurant ORDER BY RestaurantID DESC");
+      res.json(rows);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
-  // Restaurant login
-  router.post('/login', (req, res) => {
-    const { Username, Password } = req.body;
-    db.query('CALL LoginRestaurant(?, ?)', [Username, Password], (err, result) => {
-      if (err) return res.status(400).json({ error: err.sqlMessage });
-      res.json(result[0][0]);
-    });
+  /* ============================================================
+     2. GET MENU FOR RESTAURANT  (!!! MUST BE ABOVE /:id !!!)
+     ============================================================ */
+  router.get("/menu/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const [rows] = await q(
+        `SELECT 
+            m.ItemID,
+            m.Name,
+            m.Description,
+            m.Price,
+            m.WeightKg,
+            m.Status
+         FROM MenuItem m
+         WHERE m.RestaurantID = ?
+           AND m.Status = 'Active'
+         ORDER BY m.ItemID DESC`,
+        [id]
+      );
+
+      res.json(rows);
+    } catch (err) {
+      console.error("Menu fetch error:", err);
+      res.status(500).json({ error: err.message });
+    }
   });
 
-  // List all restaurants
-  router.get('/list', (req, res) => {
+  /* ============================================================
+     3. GET SINGLE RESTAURANT (placed AFTER /menu/:id)
+     ============================================================ */
+  router.get("/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [rows] = await q("SELECT * FROM Restaurant WHERE RestaurantID = ?", [id]);
 
-    db.query('SELECT * FROM Restaurant', (err, result) => {
-      if (err) return res.status(500).json({ error: err.sqlMessage });
-      // console.log("Fetched restaurants:", data);
-      res.json(result);
-    });
-  });
+      if (rows.length === 0)
+        return res.status(404).json({ error: "Restaurant not found" });
 
-  // Get menu items for a restaurant
-  router.get('/menu/:id', (req, res) => {
-    const id = req.params.id;
-    db.query('SELECT * FROM MenuItem WHERE RestaurantID = ?', [id], (err, result) => {
-      if (err) return res.status(500).json({ error: err.sqlMessage });
-      res.json(result);
-    });
+      res.json(rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
   return router;
 };
-

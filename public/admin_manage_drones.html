@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="admin.css">
+  <meta charset="utf-8"/>
+  <title>Manage Drones</title>
+  <style>
+    body { font-family: Arial; padding: 1rem }
+    table { width: 100%; border-collapse: collapse }
+    td, th { padding: .5rem; border: 1px solid #ddd }
+    form input, form select { margin-right: .5rem; padding: .3rem; }
+  </style>
+</head>
+<body>
+
+  <h2>Manage Drones</h2>
+  <p><a href="admin_dashboard.html">← Back</a></p>
+
+  <form id="addDrone">
+    <input name="model" placeholder="Model" required />
+    <input name="capacity" placeholder="Capacity (kg)" type="number" step="0.001" required />
+    <input name="maxHeight" placeholder="Max Height (m)" type="number" required />
+    <input name="rangeKm" placeholder="Range (km)" type="number" step="0.1" required />
+    <select name="status">
+      <option>Available</option>
+      <option>Busy</option>
+      <option>Maintenance</option>
+    </select>
+    <button type="submit">Add Drone</button>
+  </form>
+
+  <h3>Existing Drones</h3>
+  <table id="droneTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Model</th>
+        <th>Capacity</th>
+        <th>MaxHeight</th>
+        <th>RangeKm</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+const API_BASE = "http://localhost:5000";
+
+if (!localStorage.getItem("admin"))
+  location.href = "admin_login.html";
+
+async function loadDrones() {
+  const res = await fetch(API_BASE + '/api/admin/drones');
+  const data = await res.json();
+
+  const tbody = document.querySelector('#droneTable tbody');
+  tbody.innerHTML = '';
+
+  data.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${d.DroneID}</td>
+      <td>${d.Model}</td>
+      <td>${d.Capacity}</td>
+      <td>${d.MaxHeight}</td>
+      <td>${d.RangeKm}</td>
+      <td>${d.Status}</td>
+      <td>
+        <button class="delete" data-id="${d.DroneID}">Retire</button>
+
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // DELETE drone handler
+  document.querySelectorAll('.delete').forEach(btn =>
+    btn.onclick = async (e) => {
+      const id = e.target.dataset.id;
+
+      if (!confirm("Are you sure you want to delete this drone?")) return;
+
+      await fetch(API_BASE + `/api/admin/drones/${id}`, {
+        method: 'DELETE'
+      });
+
+      loadDrones(); // refresh table
+    }
+  );
+}
+
+document.getElementById("addDrone").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target;
+
+  const body = {
+    model: f.model.value,
+    capacity: parseFloat(f.capacity.value),
+    maxHeight: parseInt(f.maxHeight.value),
+    rangeKm: parseFloat(f.rangeKm.value),
+    status: f.status.value
+  };
+
+  await fetch(API_BASE + "/api/admin/drones/add", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  f.reset();
+  loadDrones();
+};
+
+loadDrones();
+</script>
+</body>
+</html>
